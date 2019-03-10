@@ -91,7 +91,9 @@ class TranslatableFile
     }
 
     private function formatData($data, $indentation="") {
-        switch (gettype($data)) {            
+        switch (gettype($data)) {
+            case "string":
+                return '"' . addcslashes($data, "\\\$\"\r\n\t\v\f") . '"';
             case "array":
                 $indexed = array_keys($data) === range(0, count($data) - 1);
                 $r = [];
@@ -104,7 +106,7 @@ class TranslatableFile
             case "boolean":
                 return $data ? "TRUE" : "FALSE";
             default:
-                return data_export($data, TRUE);
+                return var_export($data, TRUE);
         }
     }
 }

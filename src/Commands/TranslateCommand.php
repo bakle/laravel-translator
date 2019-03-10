@@ -51,6 +51,11 @@ class TranslateCommand extends Command
             return false;
         }
 
+        if (!config('bakleTranslator.api_key')) {
+            $this->error('No api key provided!');
+            return false;
+        }
+
         $this->comment('Starting translating process...');
         $translatableFiles = TranslatableFile::getTranslatableFiles($file);
         
