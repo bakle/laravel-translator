@@ -11,7 +11,7 @@ class ClientTranslator
      *
      * @var string
      */
-    private $endpoint = 'https://www.googleapis.com/language/translate/v2';
+    private $endpoint;
 
     /**
      * Google Translator API Key
@@ -48,7 +48,8 @@ class ClientTranslator
     
     public function __construct()
     {
-        $this->apiKey = config('translator.apiKey');
+        $this->apiKey = config('bakleTranslator.api_key');
+        $this->endpoint = config('bakleTranslator.client_endpoint');
     }
 
     /**
