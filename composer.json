@@ -1,0 +1,28 @@
+{
+    "name": "bakle/translator",
+    "description": "Translate lang files to any defined languages with just a command.",
+    "type": "library",
+    "require": {
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bashir Akle",
+            "email": "bashir.akle@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Bakle\\Translator\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bakle\\Translator\\TranslatorServiceProvider"
+            ]
+        }
+    }
+}
