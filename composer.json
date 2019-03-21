@@ -4,6 +4,7 @@
     "keywords": ["bakle", "translator", "laravel", "google", "google translator"],
     "type": "library",
     "require": {
+        "php": ">=7.0",
         "guzzlehttp/guzzle": "^6.3"
     },
     "license": "MIT",
@@ -14,7 +15,6 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "Bakle\\Translator\\": "src"
