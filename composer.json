@@ -4,7 +4,6 @@
     "keywords": ["bakle", "translator", "laravel", "google", "google translator"],
     "type": "library",
     "require": {
-        "laravel/laravel": ">=5.7",
         "guzzlehttp/guzzle": "^6.3"
     },
     "license": "MIT",
