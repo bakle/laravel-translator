@@ -51,6 +51,12 @@ class TranslateCommand extends Command
             return false;
         }
 
+        if (!is_null($file) && !$translatedFileExists = TranslatableFile::translatedFileExists($file)) {
+            $this->error("The provided file doesn't exist");
+            return false;
+        }
+        
+
         if (!config('bakleTranslator.api_key')) {
             $this->error('No api key provided!');
             return false;
