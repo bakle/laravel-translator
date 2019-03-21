@@ -1,15 +1,18 @@
 {
     "name": "bakle/translator",
     "description": "Translate lang files to any defined languages with just a command.",
+    "keywords": ["bakle", "translator", "laravel", "google", "google translator"],
     "type": "library",
     "require": {
+        "laravel/laravel": ">=5.7",
         "guzzlehttp/guzzle": "^6.3"
     },
     "license": "MIT",
     "authors": [
         {
             "name": "Bashir Akle",
-            "email": "bashir.akle@gmail.com"
+            "email": "bashir.akle@gmail.com",
+            "role": "Developer"
         }
     ],
     "minimum-stability": "stable",
