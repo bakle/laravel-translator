@@ -66,10 +66,12 @@ class TranslateCommand extends Command
         $translatableFiles = TranslatableFile::getTranslatableFiles($file);
         
         if (count($translatableFiles) > 0) {
+
             foreach ($targetLang as $lang) {                
                 
                 $this->line("------ Translating files to '" . $lang . "' ------");
                 foreach ($translatableFiles as $file) {
+
                     $translatedFileExists = TranslatableFile::translatedFileExists($lang . '/' . $file->getFileName());
                     
                     if ($translatedFileExists) {
@@ -78,15 +80,12 @@ class TranslateCommand extends Command
                         }
                     }
                     
-                    //try {
-                        $this->comment('Translating ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
-                        $translator = new Translator($file, $sourceLang, $lang);
-                        $translator->begin();
-                        $this->info('Translated ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
-                    /*} catch (\Exception $e) {
-                        $this->error($e->getMessage());
-                        return false;
-                    }*/
+                    $this->comment('Translating ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
+                    $translator = new Translator($file, $sourceLang, $lang);
+                    $translator->begin($this->output);
+                    $this->info('');
+                    $this->info('Translated ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
+                    
                 }
 
                 $this->line("------ Finished Translating files to '" . $lang . "' ------");

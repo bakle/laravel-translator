@@ -7,6 +7,10 @@
         "php": ">=7.0",
         "guzzlehttp/guzzle": "^6.3"
     },
+    "require-dev": {
+        "php": ">=7.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
     "license": "MIT",
     "authors": [
         {
@@ -20,6 +24,8 @@
             "Bakle\\Translator\\": "src"
         }
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "laravel": {
             "providers": [

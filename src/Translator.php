@@ -56,21 +56,26 @@ class Translator
      *
      * @return void
      */
-    public function begin()
+    public function begin($consoleOutput)
     {
         $translatable = new TranslatableFile($this->client);
 
         $this->client->setTargetLang($this->targetLang);
         $fileToTranslate = include $this->file;
+        
+        $progressBar = $consoleOutput->createProgressBar(count($fileToTranslate, COUNT_RECURSIVE));
+        $progressBar->start();
 
-        array_walk_recursive($fileToTranslate, function (&$text, $key) use ($translatable) {
+        array_walk_recursive($fileToTranslate, function (&$text, $key) use ($translatable, $progressBar) {
             $textToTranslate = $translatable->lockSpecialWords($text);
             $textToTranslate = $translatable->lockSpecialWords($text);
             $this->client->translate($textToTranslate);
             $text = $translatable->unlockSpecialWords();
+            $progressBar->advance();
         });
 
         $translatable->createFile($fileToTranslate, $this->file, $this->targetLang);
+        $progressBar->finish();
     }
 
     /**
