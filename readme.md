@@ -1,3 +1,5 @@
+<a href="https://packagist.org/packages/bakle/translator"><img src="https://poser.pugx.org/bakle/translator/d/total.svg" alt="Total Downloads"></a>
+
 # Laravel Translator
 This is a package to translate any lang file inside your lang folder.
 
