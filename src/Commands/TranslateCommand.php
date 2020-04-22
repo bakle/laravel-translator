@@ -51,11 +51,10 @@ class TranslateCommand extends Command
             return false;
         }
 
-        if (!is_null($file) && !$translatedFileExists = TranslatableFile::translatedFileExists($file)) {
+        if (!is_null($file) && !$translatedFileExists = TranslatableFile::translatedFileExists($sourceLang . DIRECTORY_SEPARATOR . $file)) {
             $this->error("The provided file doesn't exist");
             return false;
         }
-        
 
         if (!config('bakleTranslator.api_key')) {
             $this->error('No api key provided!');
@@ -63,29 +62,32 @@ class TranslateCommand extends Command
         }
 
         $this->comment('Starting translating process...');
-        $translatableFiles = TranslatableFile::getTranslatableFiles($file);
-        
+        $translatableFiles = TranslatableFile::getTranslatableFiles($sourceLang, $file);
+
         if (count($translatableFiles) > 0) {
 
-            foreach ($targetLang as $lang) {                
-                
+            foreach ($targetLang as $lang) {
+
                 $this->line("------ Translating files to '" . $lang . "' ------");
                 foreach ($translatableFiles as $file) {
 
-                    $translatedFileExists = TranslatableFile::translatedFileExists($lang . '/' . $file->getFileName());
-                    
+                    // just allow some extensions
+                    if ($file->getExtension() !== 'php') continue;
+
+                    $translatedFileExists = TranslatableFile::translatedFileExists($lang . DIRECTORY_SEPARATOR . $file->getFileName());
+
                     if ($translatedFileExists) {
                         if (!$this->confirm('The file ' . $lang . '/' . $file->getFileName() . ' already exists. Do you want to overwrite it?')) {
                             continue;
                         }
                     }
-                    
+
                     $this->comment('Translating ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
                     $translator = new Translator($file, $sourceLang, $lang);
                     $translator->begin($this->output);
                     $this->info('');
                     $this->info('Translated ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
-                    
+
                 }
 
                 $this->line("------ Finished Translating files to '" . $lang . "' ------");

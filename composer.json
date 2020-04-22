@@ -4,11 +4,12 @@
     "keywords": ["bakle", "translator", "laravel", "google", "google translator"],
     "type": "library",
     "require": {
-        "php": ">=7.0",
-        "guzzlehttp/guzzle": "^6.3"
+        "php": ">=7.1",
+        "guzzlehttp/guzzle": "^6.3",
+        "laravel/framework": "^5.8.0|^6.0|^7.0"
     },
     "require-dev": {
-        "php": ">=7.0",
+        "php": ">=7.1",
         "guzzlehttp/guzzle": "^6.3"
     },
     "license": "MIT",

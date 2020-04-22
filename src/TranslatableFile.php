@@ -4,6 +4,7 @@ namespace Bakle\Translator;
 
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Finder\SplFileInfo;
+use Illuminate\Support\Arr;
 
 class TranslatableFile
 {
@@ -24,31 +25,31 @@ class TranslatableFile
     /**
      * Get all lang files
      *
-     * @return array
+     * @return \Symfony\Component\Finder\SplFileInfo[]
      */
-    public static function getTranslatableFiles($file): array
+    public static function getTranslatableFiles($lang, $file = null): array
     {
+        $relativePath = resource_path("lang/$lang/");
         if ($file) {
-            return [new SplFileInfo((resource_path('lang/') . $file), resource_path('lang'), '')];            
+            return [new SplFileInfo($relativePath . $file, $relativePath, '')];
         }
 
-        return File::allFiles(resource_path('lang'));       
-        
+        return File::allFiles($relativePath);
     }
 
     /**
      * Get all lang files
      *
-     * @return array
+     * @return bool
      */
-    public static function translatedFileExists($file)
+    public static function translatedFileExists($file): bool
     {
         if ($file) {
             return File::exists((resource_path('lang/') . $file));
         }
 
         return false;
-        
+
     }
 
     /**
@@ -59,7 +60,7 @@ class TranslatableFile
      */
     public function lockSpecialWords(&$text): string
     {
-        preg_match_all($this->regExpr, $text, $this->matches);        
+        preg_match_all($this->regExpr, $text, $this->matches);
         return ((preg_replace($this->regExpr, $this->lockerSymbols, $text)));
     }
 
@@ -70,15 +71,15 @@ class TranslatableFile
      */
     public function unlockSpecialWords(): string
     {
-        return vsprintf(str_replace($this->lockerSymbols, '%s', $this->clientTranslator->getTranslatedText()), array_first($this->matches));
+        return vsprintf(str_replace($this->lockerSymbols, '%s', $this->clientTranslator->getTranslatedText()), Arr::first($this->matches));
     }
 
     /**
      * Create translated file
      *
-     * @return string
+     * @return void
      */
-    public function createFile($fileToTranslate, $file, $targetLang): void
+    public function createFile($fileToTranslate, \Symfony\Component\Finder\SplFileInfo $file, $targetLang): void
     {
         $dataToFile = "<?php\n\n\treturn " . $this->formatData($fileToTranslate, "\t") . ";";
         $newFolderPath = resource_path('lang/') . $targetLang . '/' . $file->getFilename();
@@ -86,11 +87,12 @@ class TranslatableFile
         if (!File::exists($newFolderPath)) {
             File::makeDirectory($newFolderPath);
         }
-    
+
         File::put($newFolderPath . '/' . $file->getFilename(), $dataToFile);
     }
 
-    private function formatData($data, $indentation="") {
+    private function formatData($data, $indentation = ""): string
+    {
         switch (gettype($data)) {
             case "string":
                 return '"' . addcslashes($data, "\\\$\"\r\n\t\v\f") . '"';
@@ -99,8 +101,8 @@ class TranslatableFile
                 $r = [];
                 foreach ($data as $key => $value) {
                     $r[] = "$indentation    "
-                         . ($indexed ? "" : $this->formatData($key) . " => ")
-                         . $this->formatData($value, "$indentation    ");
+                        . ($indexed ? "" : $this->formatData($key) . " => ")
+                        . $this->formatData($value, "$indentation    ");
                 }
                 return "[\n" . implode(",\n", $r) . "\n" . $indentation . "]";
             case "boolean":
