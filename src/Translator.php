@@ -4,6 +4,7 @@ namespace Bakle\Translator;
 
 use Bakle\Translator\TranslatableFile;
 use Bakle\Translator\Clients\ClientTranslator;
+use Illuminate\Support\Arr;
 
 class Translator
 {
@@ -14,7 +15,7 @@ class Translator
     /**
      * Relative file name from lang folder
      *
-     * @var string
+     * @var \Symfony\Component\Finder\SplFileInfo
      */
     private $file;
 
@@ -43,7 +44,7 @@ class Translator
 
     private $message;
 
-    public function __construct($file, $sourceLang, $targetLang)
+    public function __construct(\Symfony\Component\Finder\SplFileInfo $file, $sourceLang, $targetLang)
     {
         $this->sourceLang = $sourceLang;
         $this->targetLang = $targetLang;
@@ -62,7 +63,7 @@ class Translator
 
         $this->client->setTargetLang($this->targetLang);
         $fileToTranslate = include $this->file;
-        
+
         $progressBar = $consoleOutput->createProgressBar(count($fileToTranslate, COUNT_RECURSIVE));
         $progressBar->start();
 
