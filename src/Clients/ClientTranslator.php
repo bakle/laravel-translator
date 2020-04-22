@@ -3,6 +3,7 @@
 namespace Bakle\Translator\Clients;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Arr;
 
 class ClientTranslator
 {
@@ -124,7 +125,7 @@ class ClientTranslator
         $translated = json_decode($this->response->getBody()->getContents());
 
         if (!empty($translated) && !is_null($translated)) {
-            return array_first($translated->data->translations)->translatedText;
+            return Arr::first($translated->data->translations)->translatedText;
         }
     }
 

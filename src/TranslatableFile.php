@@ -2,6 +2,7 @@
 
 namespace Bakle\Translator;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -70,7 +71,7 @@ class TranslatableFile
      */
     public function unlockSpecialWords(): string
     {
-        return vsprintf(str_replace($this->lockerSymbols, '%s', $this->clientTranslator->getTranslatedText()), array_first($this->matches));
+        return vsprintf(str_replace($this->lockerSymbols, '%s', $this->clientTranslator->getTranslatedText()), Arr::first($this->matches));
     }
 
     /**
