@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\File;
 use Symfony\Component\Finder\SplFileInfo;
 use Illuminate\Support\Arr;
 
+use function GuzzleHttp\json_encode;
+
 class TranslatableFile
 {
 
@@ -33,7 +35,7 @@ class TranslatableFile
         if ($file) {
             return [new SplFileInfo($relativePath . $file, $relativePath, '')];
         }
-
+        
         return File::allFiles($relativePath);
     }
 
@@ -81,7 +83,13 @@ class TranslatableFile
      */
     public function createFile($fileToTranslate, \Symfony\Component\Finder\SplFileInfo $file, $targetLang): void
     {
-        $dataToFile = "<?php\n\n\treturn " . $this->formatData($fileToTranslate, "\t") . ";";
+        if($file->getExtension()==='json')
+        {
+            $dataToFile = json_encode($fileToTranslate);
+        }else{
+            $dataToFile = "<?php\n\n\treturn " . $this->formatData($fileToTranslate, "\t") . ";";   
+        }
+
         $newFolderPath = resource_path('lang/') . $targetLang . '/' . $file->getFilename();
         $newFolderPath = resource_path('lang/') . $targetLang;
         if (!File::exists($newFolderPath)) {
