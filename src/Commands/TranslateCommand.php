@@ -22,7 +22,7 @@ class TranslateCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Translate lang files to multiple languages.';
+    protected $description = 'Translate lang files [.php, .json] to multiple languages.';
 
     /**
      * Create a new command instance.
@@ -72,7 +72,7 @@ class TranslateCommand extends Command
                 foreach ($translatableFiles as $file) {
 
                     // just allow some extensions
-                    if ($file->getExtension() !== 'php') continue;
+                    if (!in_array($file->getExtension(),['php','json'])) continue;
 
                     $translatedFileExists = TranslatableFile::translatedFileExists($lang . DIRECTORY_SEPARATOR . $file->getFileName());
 
@@ -83,6 +83,7 @@ class TranslateCommand extends Command
                     }
 
                     $this->comment('Translating ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
+                    
                     $translator = new Translator($file, $sourceLang, $lang);
                     $translator->begin($this->output);
                     $this->info('');

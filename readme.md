@@ -3,7 +3,7 @@
 # Laravel Translator
 This is a package to translate any lang file inside your lang folder.
 
-***Note:*** *This version works with .php files only*.
+***Note:*** *This version works with .php and .json files only*.
 
 ## Installation
 
