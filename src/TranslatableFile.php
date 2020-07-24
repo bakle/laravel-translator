@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\File;
 use Symfony\Component\Finder\SplFileInfo;
 use Illuminate\Support\Arr;
 
-use function GuzzleHttp\json_encode;
-
 class TranslatableFile
 {
 
