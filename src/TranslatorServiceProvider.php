@@ -2,8 +2,8 @@
 
 namespace Bakle\Translator;
 
-use Illuminate\Support\ServiceProvider;
 use Bakle\Translator\Commands\TranslateCommand;
+use Illuminate\Support\ServiceProvider;
 
 class TranslatorServiceProvider extends ServiceProvider
 {
@@ -14,7 +14,7 @@ class TranslatorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+
     }
 
     /**
@@ -27,14 +27,14 @@ class TranslatorServiceProvider extends ServiceProvider
         $configPath = __DIR__ . '/../config/bakleTranslator.php';
 
         $this->publishes([
-            $configPath => config_path('bakleTranslator.php')
+            $configPath => config_path('bakleTranslator.php'),
         ]);
-        
+
         $this->mergeConfigFrom($configPath, 'bakleTranslator');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                TranslateCommand::class,                
+                TranslateCommand::class,
             ]);
         }
     }

@@ -2,39 +2,36 @@
 
 namespace Bakle\Translator;
 
-use Bakle\Translator\TranslatableFile;
 use Bakle\Translator\Clients\ClientTranslator;
-use Illuminate\Support\Arr;
 
 class Translator
 {
-
-    const STATUS_ERROR = 'Error';
-    const STATUS_SUCCESSFUL = 'Successful';
+    public const STATUS_ERROR = 'Error';
+    public const STATUS_SUCCESSFUL = 'Successful';
 
     /**
-     * Relative file name from lang folder
+     * Relative file name from lang folder.
      *
      * @var \Symfony\Component\Finder\SplFileInfo
      */
     private $file;
 
     /**
-     * Language of the file to be translated
+     * Language of the file to be translated.
      *
      * @var string
      */
     private $sourceLang;
 
     /**
-     * Languages to translate the files
+     * Languages to translate the files.
      *
      * @var array
      */
     private $targetLang;
 
     /**
-     * Translator client
+     * Translator client.
      *
      * @var ClientTranslator
      */
@@ -53,7 +50,7 @@ class Translator
     }
 
     /**
-     * Start process of translation
+     * Start process of translation.
      *
      * @return void
      */
@@ -88,4 +85,3 @@ class Translator
         $this->client->setSourceLang($this->sourceLang);
     }
 }
-

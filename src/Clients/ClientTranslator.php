@@ -8,35 +8,35 @@ use Illuminate\Support\Arr;
 class ClientTranslator
 {
     /**
-     * Endpoint to Google Translator API
+     * Endpoint to Google Translator API.
      *
      * @var string
      */
     private $endpoint;
 
     /**
-     * Google Translator API Key
+     * Google Translator API Key.
      *
      * @var string
      */
     private $apiKey;
 
     /**
-     * Language of the original text
+     * Language of the original text.
      *
      * @var string
      */
     private $sourceLang;
 
     /**
-     * Language of the translated text
+     * Language of the translated text.
      *
      * @var string
      */
     private $targetLang;
 
     /**
-     * Format of Google Translator response
+     * Format of Google Translator response.
      *
      * @var string
      */
@@ -44,9 +44,6 @@ class ClientTranslator
 
     private $response;
 
-    
-
-    
     public function __construct()
     {
         $this->apiKey = config('bakleTranslator.api_key');
@@ -54,7 +51,7 @@ class ClientTranslator
     }
 
     /**
-     * Set the source lang
+     * Set the source lang.
      *
      * @param string $sourceLang
      * @return void
@@ -65,7 +62,7 @@ class ClientTranslator
     }
 
     /**
-     * Get the source lang
+     * Get the source lang.
      *
      * @return string
      */
@@ -75,7 +72,7 @@ class ClientTranslator
     }
 
     /**
-     * Set the target lang
+     * Set the target lang.
      *
      * @param string $targetLang
      * @return void
@@ -86,7 +83,7 @@ class ClientTranslator
     }
 
     /**
-     * Get the target lang
+     * Get the target lang.
      *
      * @return string
      */
@@ -96,7 +93,7 @@ class ClientTranslator
     }
 
     /**
-     * Translate text
+     * Translate text.
      *
      * @param string $text
      * @return void
@@ -107,16 +104,15 @@ class ClientTranslator
 
         try {
             $this->response = $client->request('POST', $this->endpoint, [
-                'form_params' => $this->buildParams($text)
+                'form_params' => $this->buildParams($text),
             ]);
+        } catch (\Exception $e) {
+            throw new \Exception('There was a problem translating the text.');
         }
-        catch (\Exception $e) {
-            throw new \Exception("There was a problem translating the text.");
-        }        
     }
 
     /**
-     * Get the translated text
+     * Get the translated text.
      *
      * @return string
      */
@@ -130,7 +126,7 @@ class ClientTranslator
     }
 
     /**
-     * Build params in array
+     * Build params in array.
      *
      * @param string $text
      * @return array
@@ -146,4 +142,3 @@ class ClientTranslator
         ];
     }
 }
-
