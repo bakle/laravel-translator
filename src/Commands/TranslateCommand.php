@@ -2,9 +2,9 @@
 
 namespace Bakle\Translator\Commands;
 
-use Illuminate\Console\Command;
-use Bakle\Translator\Translator;
 use Bakle\Translator\TranslatableFile;
+use Bakle\Translator\Translator;
+use Illuminate\Console\Command;
 
 class TranslateCommand extends Command
 {
@@ -41,23 +41,25 @@ class TranslateCommand extends Command
      */
     public function handle()
     {
-
         $file = $this->argument('file');
         $sourceLang = $this->option('source-lang') ?? app()->getLocale();
         $targetLang = $this->option('target-lang');
 
         if (count($targetLang) == 0) {
             $this->error('No target language found. Please provide at least one.');
+
             return false;
         }
 
         if (!is_null($file) && !$translatedFileExists = TranslatableFile::translatedFileExists($sourceLang . DIRECTORY_SEPARATOR . $file)) {
             $this->error("The provided file doesn't exist");
+
             return false;
         }
 
         if (!config('bakleTranslator.api_key')) {
             $this->error('No api key provided!');
+
             return false;
         }
 
@@ -65,14 +67,15 @@ class TranslateCommand extends Command
         $translatableFiles = TranslatableFile::getTranslatableFiles($sourceLang, $file);
 
         if (count($translatableFiles) > 0) {
-
             foreach ($targetLang as $lang) {
-
                 $this->line("------ Translating files to '" . $lang . "' ------");
+
                 foreach ($translatableFiles as $file) {
 
                     // just allow some extensions
-                    if ($file->getExtension() !== 'php') continue;
+                    if ($file->getExtension() !== 'php') {
+                        continue;
+                    }
 
                     $translatedFileExists = TranslatableFile::translatedFileExists($lang . DIRECTORY_SEPARATOR . $file->getFileName());
 
@@ -87,7 +90,6 @@ class TranslateCommand extends Command
                     $translator->begin($this->output);
                     $this->info('');
                     $this->info('Translated ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
-
                 }
 
                 $this->line("------ Finished Translating files to '" . $lang . "' ------");
@@ -97,6 +99,7 @@ class TranslateCommand extends Command
             $this->info('Translations completed!');
         } else {
             $this->error('There are no files to translate.');
+
             return false;
         }
     }
