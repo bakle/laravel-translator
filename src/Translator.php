@@ -2,46 +2,20 @@
 
 namespace Bakle\Translator;
 
-use Bakle\Translator\Clients\ClientTranslator;
+use Bakle\Translator\Clients\GoogleTranslator;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Translator
 {
-    public const STATUS_ERROR = 'Error';
-    public const STATUS_SUCCESSFUL = 'Successful';
+    private SplFileInfo $file;
 
-    /**
-     * Relative file name from lang folder.
-     *
-     * @var \Symfony\Component\Finder\SplFileInfo
-     */
-    private $file;
+    private string $sourceLang;
 
-    /**
-     * Language of the file to be translated.
-     *
-     * @var string
-     */
-    private $sourceLang;
+    private string $targetLang;
 
-    /**
-     * Languages to translate the files.
-     *
-     * @var array
-     */
-    private $targetLang;
+    private GoogleTranslator $client;
 
-    /**
-     * Translator client.
-     *
-     * @var ClientTranslator
-     */
-    private $client;
-
-    private $status;
-
-    private $message;
-
-    public function __construct(\Symfony\Component\Finder\SplFileInfo $file, $sourceLang, $targetLang)
+    public function __construct(SplFileInfo $file, string $sourceLang, string $targetLang)
     {
         $this->sourceLang = $sourceLang;
         $this->targetLang = $targetLang;
@@ -49,12 +23,7 @@ class Translator
         $this->setUp();
     }
 
-    /**
-     * Start process of translation.
-     *
-     * @return void
-     */
-    public function begin($consoleOutput)
+    public function begin($consoleOutput): void
     {
         $translatable = new TranslatableFile($this->client);
 
@@ -66,7 +35,6 @@ class Translator
 
         array_walk_recursive($fileToTranslate, function (&$text, $key) use ($translatable, $progressBar) {
             $textToTranslate = $translatable->lockSpecialWords($text);
-            $textToTranslate = $translatable->lockSpecialWords($text);
             $this->client->translate($textToTranslate);
             $text = $translatable->unlockSpecialWords();
             $progressBar->advance();
@@ -76,12 +44,9 @@ class Translator
         $progressBar->finish();
     }
 
-    /**
-     * @return void
-     */
     private function setUp(): void
     {
-        $this->client = new ClientTranslator();
+        $this->client = new (config('bakle-translator.translator'));
         $this->client->setSourceLang($this->sourceLang);
     }
 }

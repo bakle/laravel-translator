@@ -14,7 +14,6 @@ class TranslatorServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
     }
 
     /**
@@ -24,13 +23,13 @@ class TranslatorServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $configPath = __DIR__ . '/../config/bakleTranslator.php';
+        $configPath = __DIR__ . '/../config/bakle-translator.php';
 
         $this->publishes([
-            $configPath => config_path('bakleTranslator.php'),
+            $configPath => config_path('bakle-translator.php'),
         ]);
 
-        $this->mergeConfigFrom($configPath, 'bakleTranslator');
+        $this->mergeConfigFrom($configPath, 'bakle-translator');
 
         if ($this->app->runningInConsole()) {
             $this->commands([

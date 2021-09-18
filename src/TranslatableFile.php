@@ -2,30 +2,26 @@
 
 namespace Bakle\Translator;
 
+use Bakle\Translator\Contracts\ClientTranslator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Finder\SplFileInfo;
 
 class TranslatableFile
 {
-    private $regExpr = "/(:\b.+?)\b|(&\b.+?)\b|(\<.+?\>)/i";
+    private string $regExpr = "/(:\b.+?)\b|(&\b.+?)\b|(\<.+?\>)/i";
 
-    private $lockerSymbols = '**';
+    private string $lockerSymbols = '**';
 
-    private $matches = [];
+    private array $matches = [];
 
-    private $clientTranslator;
+    private ClientTranslator $clientTranslator;
 
-    public function __construct(&$clientTranslator)
+    public function __construct($clientTranslator)
     {
         $this->clientTranslator = $clientTranslator;
     }
 
-    /**
-     * Get all lang files.
-     *
-     * @return \Symfony\Component\Finder\SplFileInfo[]
-     */
     public static function getTranslatableFiles($lang, $file = null): array
     {
         $relativePath = resource_path("lang/{$lang}/");
@@ -37,11 +33,6 @@ class TranslatableFile
         return File::allFiles($relativePath);
     }
 
-    /**
-     * Get all lang files.
-     *
-     * @return bool
-     */
     public static function translatedFileExists($file): bool
     {
         if ($file) {
@@ -51,12 +42,6 @@ class TranslatableFile
         return false;
     }
 
-    /**
-     * Replace special words with $lockerSymbols.
-     *
-     * @param string $text
-     * @return string
-     */
     public function lockSpecialWords(&$text): string
     {
         preg_match_all($this->regExpr, $text, $this->matches);
@@ -82,7 +67,6 @@ class TranslatableFile
     public function createFile($fileToTranslate, SplFileInfo $file, $targetLang): void
     {
         $dataToFile = "<?php\n\n\treturn " . $this->formatData($fileToTranslate, "\t") . ';';
-        $newFolderPath = resource_path('lang/') . $targetLang . '/' . $file->getFilename();
         $newFolderPath = resource_path('lang/') . $targetLang;
 
         if (!File::exists($newFolderPath)) {
