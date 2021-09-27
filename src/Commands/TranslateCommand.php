@@ -49,15 +49,15 @@ class TranslateCommand extends Command
                 foreach ($translatableFiles as $file) {
 
                     // just allow some extensions
-                    if (!in_array($file->getExtension(),['php','json'])) continue;
+                    if (!in_array($file->getExtension(), ['php', 'json'])) continue;
 
-                $translatedFileExists = TranslatableFile::translatedFileExists($lang . DIRECTORY_SEPARATOR . $file->getFileName());
+                    $translatedFileExists = TranslatableFile::translatedFileExists($lang . DIRECTORY_SEPARATOR . $file->getFileName());
 
-                if ($translatedFileExists) {
-                    if (!$this->confirm('The file ' . $lang . '/' . $file->getFileName() . ' already exists. Do you want to overwrite it?')) {
-                        continue;
+                    if ($translatedFileExists) {
+                        if (!$this->confirm('The file ' . $lang . '/' . $file->getFileName() . ' already exists. Do you want to overwrite it?')) {
+                            continue;
+                        }
                     }
-                }
 
                     $this->comment('Translating ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
 
@@ -68,10 +68,14 @@ class TranslateCommand extends Command
 
                 }
 
-            $this->line("------ Finished Translating files to '" . $lang . "' ------");
+                $this->line("------ Finished Translating files to '" . $lang . "' ------");
+            }
+
+            $this->info('Translations completed!');
+        }else{
+            $this->info('Not found files to translate');
         }
 
-        $this->info('Translations completed!');
 
         return self::SUCCESS;
     }
