@@ -23,7 +23,7 @@ class TranslateCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Translate lang files to multiple languages.';
+    protected $description = 'Translate lang files [.php, .json] to multiple languages.';
 
     public function handle(): int
     {
@@ -41,33 +41,41 @@ class TranslateCommand extends Command
 
         $translatableFiles = TranslatableFile::getTranslatableFiles($sourceLang, $file);
 
-        foreach ($targetLang as $lang) {
-            $this->line("------ Translating files to '" . $lang . "' ------");
+        if (count($translatableFiles) > 0) {
 
-            foreach ($translatableFiles as $file) {
-                if ($file->getExtension() !== 'php') {
-                    continue;
-                }
+            foreach ($targetLang as $lang) {
 
-                $translatedFileExists = TranslatableFile::translatedFileExists($lang . DIRECTORY_SEPARATOR . $file->getFileName());
+                $this->line("------ Translating files to '" . $lang . "' ------");
+                foreach ($translatableFiles as $file) {
 
-                if ($translatedFileExists) {
-                    if (!$this->confirm('The file ' . $lang . '/' . $file->getFileName() . ' already exists. Do you want to overwrite it?')) {
-                        continue;
+                    // just allow some extensions
+                    if (!in_array($file->getExtension(), ['php', 'json'])) continue;
+
+                    $translatedFileExists = TranslatableFile::translatedFileExists($lang . DIRECTORY_SEPARATOR . $file->getFileName());
+
+                    if ($translatedFileExists) {
+                        if (!$this->confirm('The file ' . $lang . '/' . $file->getFileName() . ' already exists. Do you want to overwrite it?')) {
+                            continue;
+                        }
                     }
+
+                    $this->comment('Translating ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
+
+                    $translator = new Translator($file, $sourceLang, $lang);
+                    $translator->begin($this->output);
+                    $this->info('');
+                    $this->info('Translated ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
+
                 }
 
-                $this->comment('Translating ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
-
-                (new Translator($file, $sourceLang, $lang))->begin($this->output);
-
-                $this->info('Translated ' . $sourceLang . '/' . $file->getFileName() . ' to ' . $lang . '/' . $file->getFileName());
+                $this->line("------ Finished Translating files to '" . $lang . "' ------");
             }
 
-            $this->line("------ Finished Translating files to '" . $lang . "' ------");
+            $this->info('Translations completed!');
+        }else{
+            $this->info('Not found files to translate');
         }
 
-        $this->info('Translations completed!');
 
         return self::SUCCESS;
     }

@@ -28,7 +28,13 @@ class Translator
         $translatable = new TranslatableFile($this->client);
 
         $this->client->setTargetLang($this->targetLang);
-        $fileToTranslate = include $this->file;
+        
+        if($this->file->getExtension()==='json')
+        {
+            $fileToTranslate = json_decode($this->file->getContents(),true);
+        }else {
+            $fileToTranslate = include $this->file;
+        }
 
         $progressBar = $consoleOutput->createProgressBar(count($fileToTranslate, COUNT_RECURSIVE));
         $progressBar->start();
