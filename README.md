@@ -3,14 +3,8 @@
 </a>
 
 <a href="https://github.com/bakle/laravel-translator/actions">
-    <img alt="Tests Passing" src="https://github.com/bakle/laravel-translator/actions/workflows/laravel-translator-pipeline/badge.svg" />
+    <img alt="Tests Passing" src="https://github.com/bakle/laravel-translator/actions/workflows/laravel-translator-pipeline.yml//badge.svg" />
 </a>
-
-<a href="https://codecov.io/gh/bakle/laravel-translator">
-      <img src="https://codecov.io/gh/bakle/laravel-translator/branch/master/graph/badge.svg" />
-    </a>
-
-[![Known Vulnerabilities](https://snyk.io/test/github/bakle/laravel-translator/badge.svg)](https://snyk.io/test/github/bakle/laravel-translator)
 
 [![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=bakle&show_icons=true&theme=tokyonight)](https://github.com/bakle/laravel-translator)
 
