@@ -2,90 +2,67 @@
 
 namespace Bakle\Translator;
 
-use Bakle\Translator\TranslatableFile;
-use Bakle\Translator\Clients\ClientTranslator;
-use Illuminate\Support\Arr;
+use Bakle\Translator\Constants\FileExtensions;
+use Bakle\Translator\Contracts\ClientTranslator;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Translator
 {
+    private SplFileInfo $file;
 
-    const STATUS_ERROR = 'Error';
-    const STATUS_SUCCESSFUL = 'Successful';
+    private string $sourceLang;
 
-    /**
-     * Relative file name from lang folder
-     *
-     * @var \Symfony\Component\Finder\SplFileInfo
-     */
-    private $file;
+    private string $targetLang;
 
-    /**
-     * Language of the file to be translated
-     *
-     * @var string
-     */
-    private $sourceLang;
+    private ClientTranslator $client;
 
-    /**
-     * Languages to translate the files
-     *
-     * @var array
-     */
-    private $targetLang;
+    private TranslatableFile $translatable;
 
-    /**
-     * Translator client
-     *
-     * @var ClientTranslator
-     */
-    private $client;
-
-    private $status;
-
-    private $message;
-
-    public function __construct(\Symfony\Component\Finder\SplFileInfo $file, $sourceLang, $targetLang)
+    public function __construct(string $sourceLang, string $targetLang)
     {
         $this->sourceLang = $sourceLang;
         $this->targetLang = $targetLang;
-        $this->file = $file;
-        $this->setUp();
+        $this->client = new (config('bakle-translator.translator'));
+        $this->client->setSourceLang($this->sourceLang);
+        $this->translatable = new TranslatableFile($this->client);
     }
 
-    /**
-     * Start process of translation
-     *
-     * @return void
-     */
-    public function begin($consoleOutput)
+    public function setFile(SplFileInfo $file)
     {
-        $translatable = new TranslatableFile($this->client);
+        $this->file = $file;
+    }
 
+    public function begin($consoleOutput): void
+    {
         $this->client->setTargetLang($this->targetLang);
-        $fileToTranslate = include $this->file;
 
-        $progressBar = $consoleOutput->createProgressBar(count($fileToTranslate, COUNT_RECURSIVE));
+        $fileContentToTranslate = $this->getFileContentToTranslate();
+
+        $progressBar = $consoleOutput->createProgressBar(count($fileContentToTranslate, COUNT_RECURSIVE));
         $progressBar->start();
 
-        array_walk_recursive($fileToTranslate, function (&$text, $key) use ($translatable, $progressBar) {
-            $textToTranslate = $translatable->lockSpecialWords($text);
-            $textToTranslate = $translatable->lockSpecialWords($text);
-            $this->client->translate($textToTranslate);
-            $text = $translatable->unlockSpecialWords();
-            $progressBar->advance();
-        });
+        $translatedContent = $this->translate($fileContentToTranslate, $progressBar);
 
-        $translatable->createFile($fileToTranslate, $this->file, $this->targetLang);
+        $this->translatable->createFile($translatedContent, $this->file, $this->targetLang);
         $progressBar->finish();
     }
 
-    /**
-     * @return void
-     */
-    private function setUp(): void
+    private function getFileContentToTranslate(): array
     {
-        $this->client = new ClientTranslator();
-        $this->client->setSourceLang($this->sourceLang);
+        return FileExtensions::isJson($this->file->getExtension())
+            ? json_decode($this->file->getContents(), true)
+            : include $this->file;
+    }
+
+    private function translate(array $fileContent, $progressBar): array
+    {
+        array_walk_recursive($fileContent, function (&$text, $key) use ($progressBar) {
+            $textToTranslate = $this->translatable->lockSpecialWords($text);
+            $this->client->translate($textToTranslate);
+            $text = $this->translatable->unlockSpecialWords();
+            $progressBar->advance();
+        });
+
+        return $fileContent;
     }
 }
-
