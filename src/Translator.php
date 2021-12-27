@@ -2,7 +2,8 @@
 
 namespace Bakle\Translator;
 
-use Bakle\Translator\Clients\GoogleTranslator;
+use Bakle\Translator\Constants\FileExtensions;
+use Bakle\Translator\Contracts\ClientTranslator;
 use Symfony\Component\Finder\SplFileInfo;
 
 class Translator
@@ -13,46 +14,55 @@ class Translator
 
     private string $targetLang;
 
-    private GoogleTranslator $client;
+    private ClientTranslator $client;
 
-    public function __construct(SplFileInfo $file, string $sourceLang, string $targetLang)
+    private TranslatableFile $translatable;
+
+    public function __construct(string $sourceLang, string $targetLang)
     {
         $this->sourceLang = $sourceLang;
         $this->targetLang = $targetLang;
+        $this->client = new (config('bakle-translator.translator'));
+        $this->client->setSourceLang($this->sourceLang);
+        $this->translatable = new TranslatableFile($this->client);
+    }
+
+    public function setFile(SplFileInfo $file)
+    {
         $this->file = $file;
-        $this->setUp();
     }
 
     public function begin($consoleOutput): void
     {
-        $translatable = new TranslatableFile($this->client);
-
         $this->client->setTargetLang($this->targetLang);
-        
-        if($this->file->getExtension()==='json')
-        {
-            $fileToTranslate = json_decode($this->file->getContents(),true);
-        }else {
-            $fileToTranslate = include $this->file;
-        }
 
-        $progressBar = $consoleOutput->createProgressBar(count($fileToTranslate, COUNT_RECURSIVE));
+        $fileContentToTranslate = $this->getFileContentToTranslate();
+
+        $progressBar = $consoleOutput->createProgressBar(count($fileContentToTranslate, COUNT_RECURSIVE));
         $progressBar->start();
 
-        array_walk_recursive($fileToTranslate, function (&$text, $key) use ($translatable, $progressBar) {
-            $textToTranslate = $translatable->lockSpecialWords($text);
-            $this->client->translate($textToTranslate);
-            $text = $translatable->unlockSpecialWords();
-            $progressBar->advance();
-        });
+        $translatedContent = $this->translate($fileContentToTranslate, $progressBar);
 
-        $translatable->createFile($fileToTranslate, $this->file, $this->targetLang);
+        $this->translatable->createFile($translatedContent, $this->file, $this->targetLang);
         $progressBar->finish();
     }
 
-    private function setUp(): void
+    private function getFileContentToTranslate(): array
     {
-        $this->client = new (config('bakle-translator.translator'));
-        $this->client->setSourceLang($this->sourceLang);
+        return FileExtensions::isJson($this->file->getExtension())
+            ? json_decode($this->file->getContents(), true)
+            : include $this->file;
+    }
+
+    private function translate(array $fileContent, $progressBar): array
+    {
+        array_walk_recursive($fileContent, function (&$text, $key) use ($progressBar) {
+            $textToTranslate = $this->translatable->lockSpecialWords($text);
+            $this->client->translate($textToTranslate);
+            $text = $this->translatable->unlockSpecialWords();
+            $progressBar->advance();
+        });
+
+        return $fileContent;
     }
 }

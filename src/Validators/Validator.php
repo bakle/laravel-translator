@@ -2,9 +2,10 @@
 
 namespace Bakle\Translator\Validators;
 
+use Bakle\Translator\Constants\FileExtensions;
 use Bakle\Translator\Constants\Languages;
 use Bakle\Translator\Exceptions\BakleValidatorException;
-use Bakle\Translator\TranslatableFile;
+use Illuminate\Support\Facades\File;
 
 class Validator
 {
@@ -21,18 +22,10 @@ class Validator
     /**
      * @throws BakleValidatorException
      */
-    public static function validateTargetLanguages(array $targetLang): void
+    public static function validateTargetLanguage(string $targetLang): void
     {
-        if (count($targetLang) === 0) {
-            throw BakleValidatorException::forEmptyTargetLanguage();
-        }
-
-        $availableLanguages = Languages::getConstantsValues();
-
-        foreach ($targetLang as $language) {
-            if (!in_array($language, $availableLanguages)) {
-                throw BakleValidatorException::forInvalidTargetLanguage($language);
-            }
+        if (!in_array($targetLang, Languages::getConstantsValues())) {
+            throw BakleValidatorException::forInvalidTargetLanguage($targetLang);
         }
     }
 
@@ -41,8 +34,22 @@ class Validator
      */
     public static function validateFile(?string $file, string $sourceLang): void
     {
-        if ($file && !TranslatableFile::translatedFileExists($sourceLang . DIRECTORY_SEPARATOR . $file)) {
+        if ($file && !self::fileExists($file, $sourceLang)) {
             throw BakleValidatorException::forInvalidFile($file);
         }
+    }
+
+    public static function fileExists(string $file, string $lang, string $targetLang = null): bool
+    {
+        if (FileExtensions::isJson($file)) {
+            return File::exists(
+                resource_path('lang/') . ($targetLang
+                    ? $targetLang . FileExtensions::JSON : $file)
+            );
+        }
+
+        $path = $targetLang ? resource_path("lang/{$targetLang}") : resource_path("lang/{$lang}");
+
+        return File::exists($path . DIRECTORY_SEPARATOR . $file);
     }
 }

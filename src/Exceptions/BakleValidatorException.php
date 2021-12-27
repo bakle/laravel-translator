@@ -16,7 +16,7 @@ class BakleValidatorException extends \Exception
 
     public static function forEmptyTargetLanguage(): self
     {
-        return new self('No target languages found. Please provide at least one.');
+        return new self('No target language found. Please provide a valid one.');
     }
 
     public static function forInvalidFile(string $invalidFile): self
