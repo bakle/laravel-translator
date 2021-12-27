@@ -2,6 +2,7 @@
 
 namespace Bakle\Translator;
 
+use Bakle\Translator\Constants\FileExtensions;
 use Bakle\Translator\Contracts\ClientTranslator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
@@ -24,22 +25,21 @@ class TranslatableFile
 
     public static function getTranslatableFiles($lang, $file = null): array
     {
-        $relativePath = resource_path("lang/{$lang}/");
+        $relativePathToPhpFiles = resource_path("lang/{$lang}/");
+        $relativePathToJsonFiles = resource_path('lang/');
 
         if ($file) {
-            return [new SplFileInfo($relativePath . $file, $relativePath, '')];
+            if (FileExtensions::isJson($file)) {
+                return [new SplFileInfo($relativePathToJsonFiles . $file, $relativePathToJsonFiles, '')];
+            }
+
+            return [new SplFileInfo($relativePathToPhpFiles . $file, $relativePathToPhpFiles, '')];
         }
 
-        return File::allFiles($relativePath);
-    }
+        $files = File::allFiles($relativePathToPhpFiles);
+        $files[] = new SplFileInfo($relativePathToJsonFiles . $lang . FileExtensions::JSON, $relativePathToJsonFiles, '');
 
-    public static function translatedFileExists($file): bool
-    {
-        if ($file) {
-            return File::exists((resource_path('lang/') . $file));
-        }
-
-        return false;
+        return $files;
     }
 
     public function lockSpecialWords(&$text): string
@@ -59,27 +59,23 @@ class TranslatableFile
         return vsprintf(str_replace($this->lockerSymbols, '%s', $this->clientTranslator->getTranslatedText()), Arr::first($this->matches));
     }
 
-    /**
-     * Create translated file.
-     *
-     * @return void
-     */
-    public function createFile($fileToTranslate, SplFileInfo $file, $targetLang): void
+    public function createFile(array $fileToTranslate, SplFileInfo $file, $targetLang): void
     {
-        if($file->getExtension()==='json')
-        {
-            $dataToFile = json_encode($fileToTranslate);
-        }else{
-            $dataToFile = "<?php\n\n\treturn " . $this->formatData($fileToTranslate, "\t") . ";";
+        if (FileExtensions::isJson($file->getExtension())) {
+            $dataToFile = json_encode($fileToTranslate, JSON_PRETTY_PRINT);
+            $newFolderPath = resource_path('lang/');
+            $fileName = $targetLang . FileExtensions::JSON;
+        } else {
+            $dataToFile = "<?php\n\n\treturn " . $this->formatData($fileToTranslate, "\t") . ';';
+            $newFolderPath = resource_path('lang/' . $targetLang);
+            $fileName = $file->getFilename();
         }
-
-        $newFolderPath = resource_path('lang/') . $targetLang;
 
         if (!File::exists($newFolderPath)) {
             File::makeDirectory($newFolderPath);
         }
 
-        File::put($newFolderPath . '/' . $file->getFilename(), $dataToFile);
+        File::put($newFolderPath . '/' . $fileName, $dataToFile);
     }
 
     private function formatData($data, $indentation = ''): string
